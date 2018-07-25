@@ -21,7 +21,6 @@ namespace Assets.Script
         private GameManager()
         {
             LoadUserdata();
-
             audioScript = GameObject.Find("BGMPlayer").GetComponent<AudioScript>();
             audioScript.SetAudioByName(bgmName);
             audioScript.SetVolume(userdata.audioValue);

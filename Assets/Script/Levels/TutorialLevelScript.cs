@@ -44,6 +44,7 @@ public class TutorialLevelScript : MonoBehaviour {
         {
             item.ResetState();
             item.SetPosition(basePosition);
+            item.SetRotation(Quaternion.Euler(0,0,0));
             basePosition.x += GameCommonValue.saveRoleSpaceRateLength * GameCommonValue.gameBaseLength;
         }
 
@@ -175,10 +176,10 @@ public class TutorialLevelScript : MonoBehaviour {
         {
             bindAllRoles = !bindAllRoles;
         }
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            currentControlRole.SpecialAction();
-        }
+        //if (Input.GetKeyDown(KeyCode.J))
+        //{
+        //    currentControlRole.SpecialAction();
+        //}
     }
 
     /// <summary>

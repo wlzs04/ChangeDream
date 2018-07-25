@@ -91,6 +91,11 @@ namespace Assets.Script.Game
         /// 跳跃到至高点需要的时间
         /// </summary>
         public static readonly float jumpNeedTime = 0.3f;
-        
+
+        /// <summary>
+        /// 与攀爬相关的时间
+        /// </summary>
+        public static readonly float climbStepOneNeedTime = 0.3f;
+        public static readonly float climbStepTwoNeedTime = 0.5f;
     }
 }

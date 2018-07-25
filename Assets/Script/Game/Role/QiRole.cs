@@ -35,20 +35,9 @@ namespace Assets.Script.Game.Role
 
         public override void ResetState()
         {
+            roleState = RoleState.Normal;
             blood = GameCommonValue.qiBloodVolume;
             ((RectTransform)this.gameObject.transform).sizeDelta = new Vector2(width, height);
-        }
-
-        public override void MoveToRight(bool isRight)
-        {
-            if (isRight)
-            {
-                gameObject.transform.localPosition = gameObject.transform.localPosition + (Vector3.right * speed * Time.deltaTime);
-            }
-            else
-            {
-                gameObject.transform.localPosition = gameObject.transform.localPosition + (Vector3.left * speed * Time.deltaTime);
-            }
         }
     }
 }

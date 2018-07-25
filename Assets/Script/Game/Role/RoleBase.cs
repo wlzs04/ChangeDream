@@ -25,6 +25,7 @@ namespace Assets.Script.Game.Role
         Normal,//通常
         Run,//跑动
         Jump,//跳跃
+        Climb,//攀爬
         Special//特殊
     }
 
@@ -52,6 +53,22 @@ namespace Assets.Script.Game.Role
         protected float jumpTime = 0;
         protected float jumpNeedTime = 0.3f;
         protected float vy = 0;
+
+        protected GameObject otherGameObject = null;
+
+        public void SetRotation(Quaternion quaternion)
+        {
+            transform.rotation = quaternion;
+        }
+
+        /// <summary>
+        /// 攀爬相关的变量
+        /// </summary>
+        protected float climbStartTime = 0;
+        protected float climbTime = 0;
+        protected float climbNeedTime = 0;
+        protected int climbStep = 1;//只有1、2阶段
+        protected float climbObjectTop = 0;
 
         void Start()
         {
@@ -84,6 +101,45 @@ namespace Assets.Script.Game.Role
                     gameObject.transform.localPosition = gameObject.transform.localPosition + (Vector3.left * speed * Time.deltaTime);
                 }
             }
+            else if (roleState == RoleState.Climb)
+            {
+                if (climbStep == 1)
+                {
+                    if (climbTime - climbStartTime <= GameCommonValue.climbStepOneNeedTime)
+                    {
+                        float tempClimbHeight = (Time.time-climbStartTime)/ GameCommonValue.climbStepOneNeedTime * climbObjectTop;
+                        gameObject.transform.localPosition = gameObject.transform.localPosition + new Vector3(0, tempClimbHeight);
+                        gameObject.transform.rotation = Quaternion.Euler(0, 0, (Time.time - climbStartTime) / GameCommonValue.climbStepOneNeedTime *(-45));
+                        climbTime = Time.time;
+                    }
+                    else
+                    {
+                        climbStep = 2;
+                    }
+                }
+                else if (climbStep == 2)
+                {
+                    if (climbTime - climbStartTime <= GameCommonValue.climbStepTwoNeedTime)
+                    {
+
+                        climbTime = Time.time;
+                    }
+                    else
+                    {
+                        climbStep = 0;
+                        roleState = RoleState.Normal;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 获得角色名称
+        /// </summary>
+        /// <returns></returns>
+        public string GetRoleName()
+        {
+            return roleName;
         }
 
         public static void SetLevelScript(TutorialLevelScript tutorialLevelScript)
@@ -105,7 +161,16 @@ namespace Assets.Script.Game.Role
         /// <param name="otherGameObject"></param>
         void Climb(GameObject otherGameObject)
         {
-
+            if(roleState == RoleState.Climb)
+            {
+                return;
+            }
+            roleState = RoleState.Climb;
+            this.otherGameObject = otherGameObject;
+            climbStartTime = Time.time;
+            climbTime = 0;
+            climbStep = 1;
+            climbObjectTop = otherGameObject.transform.localPosition.y+ ((RectTransform)otherGameObject.transform).sizeDelta.y;
         }
 
         void OnTriggerEnter2D(Collider2D other)
@@ -115,8 +180,11 @@ namespace Assets.Script.Game.Role
                 case "Ground":
                     StopJump();
                     break;
-                case "Special":
-                    Climb(other.gameObject);
+                case "Climb":
+                    if(Input.GetKeyDown(KeyCode.J))
+                    {
+                        Climb(other.gameObject);
+                    }
                     break;
                 case "Helper":
                     levelScript.ShowHelperText(other.gameObject.GetComponent<HelperScript>().helperText);
@@ -197,23 +265,35 @@ namespace Assets.Script.Game.Role
 
         public void Jump(RoleTurnDirection roleTurnDirection= RoleTurnDirection.Normal)
         {
-            if (roleState != RoleState.Normal)
+            if (roleState == RoleState.Normal|| roleState == RoleState.Run)
             {
-                return;
+                this.roleTurnDirection = roleTurnDirection;
+                roleState = RoleState.Jump;
+                jumpStartTime = Time.time;
+                jumpTime = jumpStartTime;
+                haveFinishJumpHeight = 0;
+                vy = 0;
             }
-            this.roleTurnDirection = roleTurnDirection;
-            roleState = RoleState.Jump;
-            jumpStartTime = Time.time;
-            jumpTime = jumpStartTime;
-            haveFinishJumpHeight = 0;
-            vy = 0;
         }
 
         /// <summary>
         /// 控制角色指定方向移动
         /// </summary>
         /// <param name="isRight"></param>
-        public abstract void MoveToRight(bool isRight);
+        public void MoveToRight(bool isRight)
+        {
+            if (roleState == RoleState.Normal || roleState == RoleState.Run)
+            {
+                if (isRight)
+                {
+                    gameObject.transform.localPosition = gameObject.transform.localPosition + (Vector3.right * speed * Time.deltaTime);
+                }
+                else
+                {
+                    gameObject.transform.localPosition = gameObject.transform.localPosition + (Vector3.left * speed * Time.deltaTime);
+                }
+            }
+        }
 
         /// <summary>
         /// 角色进行特殊操作
