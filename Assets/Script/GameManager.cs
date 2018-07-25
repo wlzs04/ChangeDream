@@ -17,9 +17,7 @@ namespace Assets.Script
         string gameSavePath = "/UserDate.txt";
 
         Userdata userdata = null;
-
-
-
+        
         private GameManager()
         {
             LoadUserdata();
@@ -49,18 +47,6 @@ namespace Assets.Script
                     EnterMainScene();
                 }
             }
-            if(Input.GetKeyUp(KeyCode.Tab))
-            {
-                ChangeRole();
-            }
-        }
-
-        /// <summary>
-        /// 切换角色
-        /// </summary>
-        void ChangeRole()
-        {
-
         }
 
         /// <summary>

@@ -23,5 +23,10 @@ namespace Assets.Script.Game
         {
             haveArrive = true;
         }
+
+        public Vector3 GetPosition()
+        {
+            return gameObject.transform.localPosition;
+        }
     }
 }

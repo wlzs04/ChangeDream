@@ -13,14 +13,12 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectGenerator>VSTU</UnityProjectGenerator>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2017.2.0f3</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -224,11 +222,16 @@
   <ItemGroup>
     <Compile Include="Assets\Script\AudioScript.cs" />
     <Compile Include="Assets\Script\Game\GameCommonValue.cs" />
-    <Compile Include="Assets\Script\Game\Role.cs" />
-    <Compile Include="Assets\Script\GameManager.cs" />
+    <Compile Include="Assets\Script\Game\Role\MingRole.cs" />
+    <Compile Include="Assets\Script\Game\Role\MuRole.cs" />
+    <Compile Include="Assets\Script\Game\Role\QiRole.cs" />
+    <Compile Include="Assets\Script\Game\Role\RoleBase.cs" />
+    <Compile Include="Assets\Script\Game\Role\RoleCamera.cs" />
     <Compile Include="Assets\Script\Game\SavePoint.cs" />
+    <Compile Include="Assets\Script\GameManager.cs" />
     <Compile Include="Assets\Script\GUIScript.cs" />
     <Compile Include="Assets\Script\Helper\XMLHelper.cs" />
+    <Compile Include="Assets\Script\HelperScript.cs" />
     <Compile Include="Assets\Script\Levels\TutorialLevelScript.cs" />
     <Compile Include="Assets\Script\Userdata.cs" />
   </ItemGroup>
