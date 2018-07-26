@@ -37,7 +37,24 @@ namespace Assets.Script.Game.Role
         {
             roleState = RoleState.Normal;
             blood = GameCommonValue.mingBloodVolume;
-            ((RectTransform)this.gameObject.transform).sizeDelta = new Vector2(width, height);
+            ((RectTransform)gameObject.transform).sizeDelta = new Vector2(width, height);
+        }
+
+        protected override void OnTriggerEnter2D(Collider2D other)
+        {
+            base.OnTriggerEnter2D(other);
+            
+            if(other.gameObject.tag=="Role")
+            {
+                RoleBase role = other.gameObject.GetComponent<RoleBase>();
+                if(role.GetRoleName() == "七"&& role.GetRoleState()==RoleState.Jump)
+                {
+                    if(Input.GetKey(KeyCode.J)&& levelScript.GetCurrentRole()==this)
+                    {
+                        role.JumpByOther(gameObject,jumpHeight,roleTurnDirection);
+                    }
+                }
+            }
         }
     }
 }

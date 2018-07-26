@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="utf-16"?>
+﻿<?xml version="1.0" encoding="utf-16"?>
 <Userdata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <audioValue>0.5</audioValue>
-  <haveGameSave>false</haveGameSave>
+  <haveGameSave>true</haveGameSave>
   <haveClearGame>false</haveClearGame>
   <alreadyClearLevelNumber>0</alreadyClearLevelNumber>
-  <alreadyClearMiddleLevelNumber>0</alreadyClearMiddleLevelNumber>
+  <alreadyClearMiddleLevelNumber>1</alreadyClearMiddleLevelNumber>
 </Userdata>

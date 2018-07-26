@@ -5,9 +5,12 @@ using UnityEngine;
 public class HelperScript : MonoBehaviour {
 
     public string helperText="";
+    public string talkText = "";
+    public bool showAtHelperText = true;
+    public bool needThink = false;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		
 	}
 	

@@ -46,15 +46,15 @@ namespace Assets.Script.Game.Role
                 backX = role.GetPositionX() - viewportWidth / 2;
                 if (backX <= 0)
                 {
-                    backTransform.offsetMin = new Vector2(0, backTransform.offsetMin.y);
+                    backTransform.position = new Vector3(0, backTransform.position.y);
                     return;
                 }
-                else if(backX >= backWidth - viewportWidth)
+                else if (backX >= backWidth - viewportWidth)
                 {
-                    backTransform.offsetMin = new Vector2(viewportWidth - backWidth, backTransform.offsetMin.y);
+                    backTransform.position = new Vector3(viewportWidth - backWidth, backTransform.position.y);
                     return;
                 }
-                backTransform.offsetMin = new Vector2(-backX, backTransform.offsetMin.y);
+                backTransform.position = new Vector3(-backX, backTransform.position.y);
             }
         }
 

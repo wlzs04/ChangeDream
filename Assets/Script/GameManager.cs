@@ -18,15 +18,22 @@ namespace Assets.Script
 
         Userdata userdata = null;
         
+        List<string> levelNameList = new List<string>();
+        
         private GameManager()
         {
             LoadUserdata();
-            audioScript = GameObject.Find("BGMPlayer").GetComponent<AudioScript>();
-            audioScript.SetAudioByName(bgmName);
-            audioScript.SetVolume(userdata.audioValue);
+            if(GameObject.Find("BGMPlayer") != null)
+            {
+                audioScript = GameObject.Find("BGMPlayer").GetComponent<AudioScript>();
+                audioScript.SetAudioByName(bgmName);
+                audioScript.SetVolume(userdata.audioValue);
+            }
 
             SceneManager.sceneLoaded += CheckContinueGameButton;
             CheckContinueGameButton(SceneManager.GetActiveScene(),LoadSceneMode.Single);
+
+            levelNameList.Add("TutorialLevelScene");
         }
 
         public static GameManager GetSingleInstance()
@@ -53,7 +60,7 @@ namespace Assets.Script
         /// </summary>
         public void StartGame()
         {
-            SceneManager.LoadScene("TutorialLevelScene",LoadSceneMode.Single);
+            SceneManager.LoadScene(levelNameList[0], LoadSceneMode.Single);
         }
 
         /// <summary>
@@ -61,7 +68,7 @@ namespace Assets.Script
         /// </summary>
         public void ContinueGame()
         {
-            
+            SceneManager.LoadScene(levelNameList[userdata.alreadyClearLevelNumber], LoadSceneMode.Single);
         }
 
         /// <summary>
@@ -132,6 +139,33 @@ namespace Assets.Script
         public void SaveUserdata()
         {
             XMLHelper.SaveDataToXML(Application.dataPath + gameSavePath, userdata);
+        }
+
+        /// <summary>
+        /// 由关卡调用
+        /// </summary>
+        public void SaveByLevel(int levelIndex,int savePointIndex)
+        {
+            userdata.haveGameSave = true;
+            userdata.alreadyClearLevelNumber = levelIndex;
+            userdata.alreadyClearMiddleLevelNumber = savePointIndex;
+            SaveUserdata();
+        }
+
+        /// <summary>
+        /// 获得上次进行的关卡
+        /// </summary>
+        public int GetLastLevelIndex()
+        {
+            return userdata.alreadyClearLevelNumber;
+        }
+
+        /// <summary>
+        /// 获得上次进行的关卡的最后通过的保存点
+        /// </summary>
+        public int GetLastSavePointIndex()
+        {
+            return userdata.alreadyClearMiddleLevelNumber;
         }
 
         /// <summary>

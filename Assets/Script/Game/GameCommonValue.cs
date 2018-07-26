@@ -97,5 +97,11 @@ namespace Assets.Script.Game
         /// </summary>
         public static readonly float climbStepOneNeedTime = 0.3f;
         public static readonly float climbStepTwoNeedTime = 0.5f;
+
+        /// <summary>
+        /// 与木说话相关时间
+        /// </summary>
+        public static readonly float muTalkShowTime = 3f;
+        public static readonly float muPrepareTalkNeedTime = 5f;
     }
 }

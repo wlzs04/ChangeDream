@@ -1,5 +1,7 @@
-﻿using Assets.Script.Game;
+﻿using Assets.Script;
+using Assets.Script.Game;
 using Assets.Script.Game.Role;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,11 +11,14 @@ public class TutorialLevelScript : MonoBehaviour {
     GameObject ground = null;
     Image back = null;
     Text help = null;
+    int levelIndex = 0;
 
     string savePointNameEx = "SavePointImage";
 
     int currentRoleIndex = 0;
     List<RoleBase> roleList = new List<RoleBase>();
+    MuRole muRole = null;
+
     List<SavePoint> savePointList = new List<SavePoint>();
 
     RoleBase currentControlRole = null;//当前控制角色
@@ -24,13 +29,29 @@ public class TutorialLevelScript : MonoBehaviour {
 
     bool bindAllRoles = false;//绑定所有角色
 
+    List<string> muTalkContentList = new List<string>();
+    System.Random random = new System.Random();
+
     // Use this for initialization
-    void Start () {
+    void Start() {
         ground = GameObject.Find("GroundRawImage");
 
         back = GameObject.Find("BackImage").GetComponent<Image>();
         help = GameObject.Find("HelpText").GetComponent<Text>();
         InitLevel();
+
+        muTalkContentList.Add("控制的角色有点多，会不会不习惯！");
+        muTalkContentList.Add("墙壁会推人吗？");
+        muTalkContentList.Add("据说跳的越高，进地越深。");
+    }
+
+    /// <summary>
+    /// 随机返回场景说话集合的一句
+    /// </summary>
+    /// <returns></returns>
+    public string GetRandomTalkContent()
+    {
+        return muTalkContentList[random.Next(muTalkContentList.Count)];
     }
 
     /// <summary>
@@ -62,6 +83,15 @@ public class TutorialLevelScript : MonoBehaviour {
     }
 
     /// <summary>
+    /// 获得当前控制角色
+    /// </summary>
+    /// <returns></returns>
+    public RoleBase GetCurrentRole()
+    {
+        return currentControlRole;
+    }
+
+    /// <summary>
     /// 初始化关卡
     /// </summary>
     void InitLevel()
@@ -69,12 +99,12 @@ public class TutorialLevelScript : MonoBehaviour {
         int index = 0;
         while (true)
         {
-            GameObject savePoint = GameObject.Find(savePointNameEx+ index);
-            if (savePoint!=null)
+            GameObject savePointObject = GameObject.Find(savePointNameEx + index);
+            if (savePointObject != null)
             {
-                SavePoint sp = new SavePoint();
-                sp.SetSaveObject(savePoint);
-                savePointList.Add(sp);
+                SavePoint savePoint = savePointObject.GetComponent<SavePoint>();
+                savePoint.SetSavePointIndex(index);
+                savePointList.Add(savePoint);
                 index++;
             }
             else
@@ -82,8 +112,14 @@ public class TutorialLevelScript : MonoBehaviour {
                 break;
             }
         }
-        savePointList[0].Arrive();
-        lastSavePoint = savePointList[0];
+
+        int haveArriveSavePointNumber = GameManager.GetSingleInstance().GetLastSavePointIndex();
+
+        for (int i = 0; i < haveArriveSavePointNumber+1; i++)
+        {
+            savePointList[i].Arrive();
+            lastSavePoint = savePointList[i];
+        }
 
         roleCamera = new RoleCamera(ground);
 
@@ -97,7 +133,7 @@ public class TutorialLevelScript : MonoBehaviour {
     /// </summary>
     void InitRole()
     {
-        MuRole muRole = GameObject.Find("MuRoleImage").GetComponent<MuRole>();
+        muRole = GameObject.Find("MuRoleImage").GetComponent<MuRole>();
         MingRole mingRole = GameObject.Find("MingRoleImage").GetComponent<MingRole>();
         QiRole qiRole = GameObject.Find("QiRoleImage").GetComponent<QiRole>();
 
@@ -221,5 +257,44 @@ public class TutorialLevelScript : MonoBehaviour {
     public void End()
     {
 
+    }
+
+    /// <summary>
+    /// 当角色到达保存点调用，所有角色都接触到保存点，并且此保存点未到达的话保存记录，并改为已到达。
+    /// </summary>
+    /// <param name="savePoint"></param>
+    public void CheckSaveBySavePoint(SavePoint savePoint)
+    {
+        if(savePoint.IsArrived())
+        {
+            return;
+        }
+        foreach (var item in roleList)
+        {
+            if(item.GetOtherGameObject()!=savePoint.gameObject)
+            {
+                return;
+            }
+        }
+        savePoint.Arrive();
+        GameManager.GetSingleInstance().SaveByLevel(levelIndex, savePoint.GetSavePointIndex());
+        muRole.Talk("保存成功！");
+    }
+
+    /// <summary>
+    /// 当角色到达终点调用，所有角色都接触到终点，保存记录。
+    /// </summary>
+    /// <param name="endObject"></param>
+    public void CheckEnd(GameObject endObject)
+    {
+        foreach (var item in roleList)
+        {
+            if (item.GetOtherGameObject() != endObject)
+            {
+                return;
+            }
+        }
+        GameManager.GetSingleInstance().SaveByLevel(levelIndex+1, 0);
+        GameManager.GetSingleInstance().EnterMainScene();
     }
 }

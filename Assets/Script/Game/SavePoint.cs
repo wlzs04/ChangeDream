@@ -6,14 +6,19 @@ using UnityEngine;
 
 namespace Assets.Script.Game
 {
-    class SavePoint
+    public class SavePoint : MonoBehaviour
     {
-        GameObject gameObject = null;
         bool haveArrive = false;
+        int savePointIndex = 0;
 
-        public void SetSaveObject(GameObject gameObject)
+        public void SetSavePointIndex(int index)
         {
-            this.gameObject = gameObject;
+            savePointIndex = index;
+        }
+
+        public int GetSavePointIndex()
+        {
+            return savePointIndex;
         }
 
         /// <summary>
@@ -27,6 +32,15 @@ namespace Assets.Script.Game
         public Vector3 GetPosition()
         {
             return gameObject.transform.localPosition;
+        }
+
+        /// <summary>
+        /// 判断此保存点是否已经到达
+        /// </summary>
+        /// <returns></returns>
+        public bool IsArrived()
+        {
+            return haveArrive;
         }
     }
 }

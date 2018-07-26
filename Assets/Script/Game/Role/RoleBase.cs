@@ -10,7 +10,7 @@ namespace Assets.Script.Game.Role
     /// <summary>
     /// 角色朝向
     /// </summary>
-    enum RoleTurnDirection
+    public enum RoleTurnDirection
     {
         Normal,
         Left,
@@ -20,16 +20,17 @@ namespace Assets.Script.Game.Role
     /// <summary>
     /// 角色状态
     /// </summary>
-    enum RoleState
+    public enum RoleState
     {
         Normal,//通常
         Run,//跑动
         Jump,//跳跃
         Climb,//攀爬
-        Special//特殊
+        Special,//特殊
+        Controlled,//被控制
     }
 
-    abstract class RoleBase : MonoBehaviour
+    public abstract class RoleBase : MonoBehaviour
     {
         /// <summary>
         /// 基础属性
@@ -39,11 +40,12 @@ namespace Assets.Script.Game.Role
         protected int blood = 1;
         protected float width = 1;
         protected float height = 1;
-        protected float jumpHeight = 1;
+        protected float jumpHeight = 1;//角色本身跳跃高度
+        protected float thisTimeJumpHeight = 1;//本次跳跃高度
         protected RoleState roleState;
         protected RoleTurnDirection roleTurnDirection;
 
-        static TutorialLevelScript levelScript = null;
+        protected static TutorialLevelScript levelScript = null;
 
         /// <summary>
         /// 跳跃需要的变量
@@ -56,11 +58,6 @@ namespace Assets.Script.Game.Role
 
         protected GameObject otherGameObject = null;
 
-        public void SetRotation(Quaternion quaternion)
-        {
-            transform.rotation = quaternion;
-        }
-
         /// <summary>
         /// 攀爬相关的变量
         /// </summary>
@@ -68,7 +65,11 @@ namespace Assets.Script.Game.Role
         protected float climbTime = 0;
         protected float climbNeedTime = 0;
         protected int climbStep = 1;//只有1、2阶段
-        protected float climbObjectTop = 0;
+        protected float climbObjectHeight = 0;//第1阶段在y方向所需移动的距离
+        protected float climbObjectWidth = 0;//第2阶段在x方向所需移动的距离
+        protected float climbFromX = 0;//第2阶段移动的起始X位置
+
+        protected bool beControlled = false;//受控制无法跳跃
 
         void Start()
         {
@@ -77,11 +78,16 @@ namespace Assets.Script.Game.Role
 
         protected virtual void Update()
         {
+            if(levelScript==null)
+            {
+                return;
+            }
+
             if (roleState == RoleState.Jump)
             {
                 if (jumpTime - jumpStartTime <= jumpNeedTime)
                 {
-                    float tempJumpHeight = (Mathf.Sin((Time.time - jumpStartTime) / jumpNeedTime * Mathf.PI / 2) - Mathf.Sin((jumpTime - jumpStartTime) / jumpNeedTime * Mathf.PI / 2)) * jumpHeight;
+                    float tempJumpHeight = (Mathf.Sin((Time.time - jumpStartTime) / jumpNeedTime * Mathf.PI / 2) - Mathf.Sin((jumpTime - jumpStartTime) / jumpNeedTime * Mathf.PI / 2)) * thisTimeJumpHeight;
                     haveFinishJumpHeight += tempJumpHeight;
                     gameObject.transform.localPosition = gameObject.transform.localPosition + new Vector3(0, tempJumpHeight);
 
@@ -107,13 +113,15 @@ namespace Assets.Script.Game.Role
                 {
                     if (climbTime - climbStartTime <= GameCommonValue.climbStepOneNeedTime)
                     {
-                        float tempClimbHeight = (Time.time-climbStartTime)/ GameCommonValue.climbStepOneNeedTime * climbObjectTop;
+                        float tempClimbHeight = (Time.time- climbTime) / GameCommonValue.climbStepOneNeedTime * climbObjectHeight;
                         gameObject.transform.localPosition = gameObject.transform.localPosition + new Vector3(0, tempClimbHeight);
                         gameObject.transform.rotation = Quaternion.Euler(0, 0, (Time.time - climbStartTime) / GameCommonValue.climbStepOneNeedTime *(-45));
                         climbTime = Time.time;
                     }
                     else
                     {
+                        climbObjectWidth = ((RectTransform)(otherGameObject.transform)).sizeDelta.x + ((RectTransform)(gameObject.transform)).sizeDelta.x;//otherGameObject.transform.localPosition.x-gameObject.transform.localPosition.x+((RectTransform)(otherGameObject.transform)).sizeDelta.x;
+                        climbFromX = gameObject.transform.localPosition.x;
                         climbStep = 2;
                     }
                 }
@@ -121,16 +129,31 @@ namespace Assets.Script.Game.Role
                 {
                     if (climbTime - climbStartTime <= GameCommonValue.climbStepTwoNeedTime)
                     {
+                        float rate =  (Time.time - climbStartTime - GameCommonValue.climbStepOneNeedTime) / (GameCommonValue.climbStepTwoNeedTime - GameCommonValue.climbStepOneNeedTime);
+                        gameObject.transform.rotation = Quaternion.Euler(0, 0, (1-rate) * (-45));
+                        gameObject.transform.localPosition =  new Vector3(climbFromX+rate * climbObjectWidth, gameObject.transform.localPosition.y);
 
                         climbTime = Time.time;
                     }
                     else
                     {
+                        gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+                        gameObject.transform.localPosition = new Vector3(climbFromX+climbObjectWidth, otherGameObject.transform.localPosition.y + ((RectTransform)otherGameObject.transform).sizeDelta.y);
                         climbStep = 0;
                         roleState = RoleState.Normal;
                     }
                 }
             }
+        }
+
+        public void SetRotation(Quaternion quaternion)
+        {
+            transform.rotation = quaternion;
+        }
+
+        public RoleState GetRoleState()
+        {
+            return roleState;
         }
 
         /// <summary>
@@ -142,11 +165,18 @@ namespace Assets.Script.Game.Role
             return roleName;
         }
 
+        /// <summary>
+        /// 设置关卡脚本
+        /// </summary>
+        /// <param name="tutorialLevelScript"></param>
         public static void SetLevelScript(TutorialLevelScript tutorialLevelScript)
         {
             levelScript = tutorialLevelScript;
         }
 
+        /// <summary>
+        /// 停止跳跃
+        /// </summary>
         public void StopJump()
         {
             if(roleState==RoleState.Jump)
@@ -168,23 +198,40 @@ namespace Assets.Script.Game.Role
             roleState = RoleState.Climb;
             this.otherGameObject = otherGameObject;
             climbStartTime = Time.time;
-            climbTime = 0;
+            climbTime = Time.time;
             climbStep = 1;
-            climbObjectTop = otherGameObject.transform.localPosition.y+ ((RectTransform)otherGameObject.transform).sizeDelta.y;
+            climbObjectHeight = otherGameObject.transform.localPosition.y + ((RectTransform)otherGameObject.transform).sizeDelta.y - transform.localPosition.y;
         }
 
-        void OnTriggerEnter2D(Collider2D other)
+        protected virtual void OnTriggerEnter2D(Collider2D other)
         {
+            if (levelScript == null)
+            {
+                return;
+            }
             switch (other.gameObject.tag)
             {
+                case "LeftBlock":
+                case "RightBlock":
+                    StopJump();
+                    beControlled =true;
+                    break;
                 case "Ground":
                     StopJump();
                     break;
                 case "Climb":
-                    if(Input.GetKeyDown(KeyCode.J))
+                    if(Input.GetKey(KeyCode.J))
                     {
                         Climb(other.gameObject);
                     }
+                    break;
+                case "SavePoint":
+                    otherGameObject = other.gameObject;
+                    levelScript.CheckSaveBySavePoint(otherGameObject.GetComponent<SavePoint>());
+                    break;
+                case "End":
+                    otherGameObject = other.gameObject;
+                    levelScript.CheckEnd(otherGameObject);
                     break;
                 case "Helper":
                     levelScript.ShowHelperText(other.gameObject.GetComponent<HelperScript>().helperText);
@@ -196,14 +243,20 @@ namespace Assets.Script.Game.Role
 
         void OnTriggerStay2D(Collider2D other)
         {
+            if (levelScript == null)
+            {
+                return;
+            }
             switch (other.gameObject.tag)
             {
                 case "Ground":
                     break;
                 case "LeftBlock":
+                case "LeftBlockCanJump":
                     MoveToRight(true);
                     break;
                 case "RightBlock":
+                case "RightBlockCanJump":
                     MoveToRight(false);
                     break;
                 case "Block":
@@ -221,12 +274,20 @@ namespace Assets.Script.Game.Role
 
         void OnTriggerExit2D(Collider2D other)
         {
+            if (levelScript == null)
+            {
+                return;
+            }
             switch (other.gameObject.tag)
             {
                 case "LeftBlock":
+                case "LeftBlockCanJump":
+                    beControlled = false;
                     Jump(RoleTurnDirection.Right);
                     break;
                 case "RightBlock":
+                case "RightBlockCanJump":
+                    beControlled = false;
                     Jump(RoleTurnDirection.Left);
                     break;
                 default:
@@ -263,17 +324,43 @@ namespace Assets.Script.Game.Role
             return blood;
         }
 
+        /// <summary>
+        /// 控制角色向某方向跳跃，默认上方向
+        /// </summary>
+        /// <param name="roleTurnDirection"></param>
         public void Jump(RoleTurnDirection roleTurnDirection= RoleTurnDirection.Normal)
         {
+            if(beControlled)
+            {
+                return;
+            }
             if (roleState == RoleState.Normal|| roleState == RoleState.Run)
             {
                 this.roleTurnDirection = roleTurnDirection;
                 roleState = RoleState.Jump;
                 jumpStartTime = Time.time;
                 jumpTime = jumpStartTime;
+                thisTimeJumpHeight = jumpHeight;
                 haveFinishJumpHeight = 0;
                 vy = 0;
             }
+        }
+
+        /// <summary>
+        /// 角色受外力作用跳跃
+        /// </summary>
+        /// <param name="gameObject"></param>
+        /// <param name="jumpHeight"></param>
+        /// <param name="roleTurnDirection"></param>
+        public void JumpByOther(GameObject gameObject,float jumpHeight, RoleTurnDirection roleTurnDirection = RoleTurnDirection.Normal)
+        {
+            this.roleTurnDirection = roleTurnDirection;
+            roleState = RoleState.Jump;
+            jumpStartTime = Time.time;
+            jumpTime = jumpStartTime;
+            thisTimeJumpHeight = jumpHeight;
+            haveFinishJumpHeight = 0;
+            vy = 0;
         }
 
         /// <summary>
@@ -286,10 +373,12 @@ namespace Assets.Script.Game.Role
             {
                 if (isRight)
                 {
+                    roleTurnDirection = RoleTurnDirection.Right;
                     gameObject.transform.localPosition = gameObject.transform.localPosition + (Vector3.right * speed * Time.deltaTime);
                 }
                 else
                 {
+                    roleTurnDirection = RoleTurnDirection.Left;
                     gameObject.transform.localPosition = gameObject.transform.localPosition + (Vector3.left * speed * Time.deltaTime);
                 }
             }
@@ -301,6 +390,15 @@ namespace Assets.Script.Game.Role
         public virtual void SpecialAction()
         {
 
+        }
+
+        /// <summary>
+        /// 获得与角色有交互的物体。
+        /// </summary>
+        /// <returns></returns>
+        public GameObject GetOtherGameObject()
+        {
+            return otherGameObject;
         }
     }
 }
