@@ -15,6 +15,8 @@ namespace Assets.Script.Game.Role
             width = GameCommonValue.qiRateWidth * GameCommonValue.gameBaseLength;
             height = GameCommonValue.qiRateHeight * GameCommonValue.gameBaseLength;
             jumpHeight = GameCommonValue.qiJumpRateHeight * GameCommonValue.gameBaseLength;
+            fallDownHeight = GameCommonValue.qiFallDownRateHeight * GameCommonValue.gameBaseLength;
+            weight = GameCommonValue.muRateWeight;
             ResetState();
         }
 

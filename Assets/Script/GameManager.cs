@@ -34,6 +34,7 @@ namespace Assets.Script
             CheckContinueGameButton(SceneManager.GetActiveScene(),LoadSceneMode.Single);
 
             levelNameList.Add("TutorialLevelScene");
+            levelNameList.Add("WeatherLevelScene");
         }
 
         public static GameManager GetSingleInstance()
@@ -68,7 +69,14 @@ namespace Assets.Script
         /// </summary>
         public void ContinueGame()
         {
-            SceneManager.LoadScene(levelNameList[userdata.alreadyClearLevelNumber], LoadSceneMode.Single);
+            if(userdata.alreadyClearLevelNumber>= levelNameList.Count)
+            {
+                StartGame();
+            }
+            else
+            {
+                SceneManager.LoadScene(levelNameList[userdata.alreadyClearLevelNumber], LoadSceneMode.Single);
+            }
         }
 
         /// <summary>
@@ -191,6 +199,37 @@ namespace Assets.Script
         public Userdata GetUserdata()
         {
             return userdata;
+        }
+
+        /// <summary>
+        /// 角色死亡
+        /// </summary>
+        public void RoleDeath()
+        {
+            userdata.residueLife--;
+
+            if (userdata.residueLife<=0)
+            {
+                //提示生命值已经为零。
+                userdata.residueLife = 1024;
+            }
+            SaveUserdata();
+        }
+
+        /// <summary>
+        /// 进入下一关卡
+        /// </summary>
+        /// <param name="currentLevelIndex"></param>
+        public void EnterNextLevel(int currentLevelIndex)
+        {
+            if (currentLevelIndex + 1 >= levelNameList.Count)
+            {
+                EnterMainScene();
+            }
+            else
+            {
+                ContinueGame();
+            }
         }
     }
 }

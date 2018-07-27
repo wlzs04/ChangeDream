@@ -15,6 +15,8 @@ namespace Assets.Script.Game.Role
             width = GameCommonValue.mingRateWidth * GameCommonValue.gameBaseLength;
             height = GameCommonValue.mingRateHeight * GameCommonValue.gameBaseLength;
             jumpHeight = GameCommonValue.mingJumpRateHeight * GameCommonValue.gameBaseLength;
+            fallDownHeight = GameCommonValue.mingFallDownRateHeight * GameCommonValue.gameBaseLength;
+            weight = GameCommonValue.mingRateWeight;
             ResetState();
         }
 
@@ -51,6 +53,7 @@ namespace Assets.Script.Game.Role
                 {
                     if(Input.GetKey(KeyCode.J)&& levelScript.GetCurrentRole()==this)
                     {
+                        role.SetInvincible(true);
                         role.JumpByOther(gameObject,jumpHeight,roleTurnDirection);
                     }
                 }

@@ -3,6 +3,7 @@
   <audioValue>0.5</audioValue>
   <haveGameSave>true</haveGameSave>
   <haveClearGame>false</haveClearGame>
-  <alreadyClearLevelNumber>0</alreadyClearLevelNumber>
-  <alreadyClearMiddleLevelNumber>1</alreadyClearMiddleLevelNumber>
+  <residueLife>1022</residueLife>
+  <alreadyClearLevelNumber>1</alreadyClearLevelNumber>
+  <alreadyClearMiddleLevelNumber>0</alreadyClearMiddleLevelNumber>
 </Userdata>

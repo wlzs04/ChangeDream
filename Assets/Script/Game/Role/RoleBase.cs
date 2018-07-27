@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Script.Levels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,16 +43,20 @@ namespace Assets.Script.Game.Role
         protected float height = 1;
         protected float jumpHeight = 1;//角色本身跳跃高度
         protected float thisTimeJumpHeight = 1;//本次跳跃高度
+        protected float fallDownHeight = 1;//角色落下高度
+        protected float weight = 1;//角色体重
+        protected bool isInvincible = false;//无敌
         protected RoleState roleState;
         protected RoleTurnDirection roleTurnDirection;
 
-        protected static TutorialLevelScript levelScript = null;
+        protected static LevelScriptBase levelScript = null;
 
         /// <summary>
         /// 跳跃需要的变量
         /// </summary>
         protected float jumpStartTime = 0;
         protected float haveFinishJumpHeight = 0;
+        protected float jumpTopY = 0;//本次跳跃后角色最高的位置
         protected float jumpTime = 0;
         protected float jumpNeedTime = 0.3f;
         protected float vy = 0;
@@ -92,6 +97,7 @@ namespace Assets.Script.Game.Role
                     gameObject.transform.localPosition = gameObject.transform.localPosition + new Vector3(0, tempJumpHeight);
 
                     jumpTime = Time.time;
+                    jumpTopY = gameObject.transform.localPosition.y;
                 }
                 else
                 {
@@ -169,9 +175,9 @@ namespace Assets.Script.Game.Role
         /// 设置关卡脚本
         /// </summary>
         /// <param name="tutorialLevelScript"></param>
-        public static void SetLevelScript(TutorialLevelScript tutorialLevelScript)
+        public static void SetLevelScript(LevelScriptBase levelScript)
         {
-            levelScript = tutorialLevelScript;
+            RoleBase.levelScript = levelScript;
         }
 
         /// <summary>
@@ -182,6 +188,14 @@ namespace Assets.Script.Game.Role
             if(roleState==RoleState.Jump)
             {
                 roleState = RoleState.Normal;
+            }
+            if(isInvincible)
+            {
+                isInvincible = false;
+            }
+            else if (jumpTopY - gameObject.transform.localPosition.y >= fallDownHeight)
+            {
+                levelScript.RoleDeath(this, "跳得越高，摔得越狠！");
             }
         }
 
@@ -236,12 +250,15 @@ namespace Assets.Script.Game.Role
                 case "Helper":
                     levelScript.ShowHelperText(other.gameObject.GetComponent<HelperScript>().helperText);
                     break;
+                case "Death":
+                    levelScript.RoleDeath(this, other.gameObject.GetComponent<DeathScript>().deathReason);
+                    break;
                 default:
                     break;
             }
         }
 
-        void OnTriggerStay2D(Collider2D other)
+        protected virtual void OnTriggerStay2D(Collider2D other)
         {
             if (levelScript == null)
             {
@@ -261,18 +278,12 @@ namespace Assets.Script.Game.Role
                     break;
                 case "Block":
                     break;
-                case "SavePoint":
-                    levelScript.Save();
-                    break;
-                case "End":
-                    levelScript.End();
-                    break;
                 default:
                     break;
             }
         }
 
-        void OnTriggerExit2D(Collider2D other)
+        protected virtual void OnTriggerExit2D(Collider2D other)
         {
             if (levelScript == null)
             {
@@ -322,6 +333,11 @@ namespace Assets.Script.Game.Role
         public int GetBlood()
         {
             return blood;
+        }
+
+        public float GetWeight()
+        {
+            return weight;
         }
 
         /// <summary>
@@ -385,6 +401,23 @@ namespace Assets.Script.Game.Role
         }
 
         /// <summary>
+        /// 角色受外力作用移动
+        /// </summary>
+        public void MoveByOther(GameObject gameObject,float length, RoleTurnDirection roleTurnDirection)
+        {
+            if (roleTurnDirection== RoleTurnDirection.Right)
+            {
+                this.roleTurnDirection = RoleTurnDirection.Right;
+                this.gameObject.transform.localPosition = this.gameObject.transform.localPosition + (Vector3.right * length);
+            }
+            else
+            {
+                this.roleTurnDirection = RoleTurnDirection.Left;
+                this.gameObject.transform.localPosition = this.gameObject.transform.localPosition + (Vector3.left * length);
+            }
+        }
+
+        /// <summary>
         /// 角色进行特殊操作
         /// </summary>
         public virtual void SpecialAction()
@@ -399,6 +432,15 @@ namespace Assets.Script.Game.Role
         public GameObject GetOtherGameObject()
         {
             return otherGameObject;
+        }
+
+        /// <summary>
+        /// 设置无敌状态
+        /// </summary>
+        /// <param name="isInvincible"></param>
+        public void SetInvincible(bool isInvincible)
+        {
+            this.isInvincible = isInvincible;
         }
     }
 }

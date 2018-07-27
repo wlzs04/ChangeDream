@@ -16,6 +16,7 @@ TagManager:
   - Climb
   - LeftBlockCanJump
   - RightBlockCanJump
+  - Death
   layers:
   - Default
   - TransparentFX

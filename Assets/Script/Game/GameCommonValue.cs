@@ -54,9 +54,16 @@ namespace Assets.Script.Game
         /// <summary>
         /// 木、鸣、七的受伤高度比例
         /// </summary>
-        public static readonly float muFallDownRateHeight = 1.5f;
-        public static readonly float mingFallDownRateHeight = 2.2f;
-        public static readonly float qiFallDownRateHeight = 0.9f;
+        public static readonly float muFallDownRateHeight = 3f;
+        public static readonly float mingFallDownRateHeight = 5f;
+        public static readonly float qiFallDownRateHeight = 1f;
+
+        /// <summary>
+        /// 木、鸣、七的体重比例
+        /// </summary>
+        public static readonly float muRateWeight = 1f;
+        public static readonly float mingRateWeight = 2f;
+        public static readonly float qiRateWeight = 0.5f;
 
         /// <summary>
         /// 木、鸣、七的血量
@@ -103,5 +110,12 @@ namespace Assets.Script.Game
         /// </summary>
         public static readonly float muTalkShowTime = 3f;
         public static readonly float muPrepareTalkNeedTime = 5f;
+
+        /// <summary>
+        /// 与风相关的变量
+        /// </summary>
+        public static readonly int windMaxDurationTime = 5;
+        public static readonly int windMinDurationTime = 1;
+        public static readonly int windMaxSpeed = 1;
     }
 }

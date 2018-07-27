@@ -221,6 +221,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Script\AudioScript.cs" />
+    <Compile Include="Assets\Script\DeathScript.cs" />
     <Compile Include="Assets\Script\Game\GameCommonValue.cs" />
     <Compile Include="Assets\Script\Game\Role\MingRole.cs" />
     <Compile Include="Assets\Script\Game\Role\MuRole.cs" />
@@ -228,11 +229,14 @@
     <Compile Include="Assets\Script\Game\Role\RoleBase.cs" />
     <Compile Include="Assets\Script\Game\Role\RoleCamera.cs" />
     <Compile Include="Assets\Script\Game\SavePoint.cs" />
+    <Compile Include="Assets\Script\Game\Weather\Wind.cs" />
     <Compile Include="Assets\Script\GameManager.cs" />
     <Compile Include="Assets\Script\GUIScript.cs" />
     <Compile Include="Assets\Script\Helper\XMLHelper.cs" />
     <Compile Include="Assets\Script\HelperScript.cs" />
+    <Compile Include="Assets\Script\Levels\LevelScriptBase.cs" />
     <Compile Include="Assets\Script\Levels\TutorialLevelScript.cs" />
+    <Compile Include="Assets\Script\Levels\WeatherLevelScript.cs" />
     <Compile Include="Assets\Script\Userdata.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -5,7 +5,7 @@ using UnityEngine;
 public class HelperScript : MonoBehaviour {
 
     public string helperText="";
-    public string talkText = "";
+    public string thinkText = "";
     public bool showAtHelperText = true;
     public bool needThink = false;
 

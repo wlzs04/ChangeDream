@@ -18,6 +18,7 @@ namespace Assets.Script.Game.Role
         float lastStopTalkTime = 0;
         bool isTalking = false;
         bool isThinking = false;
+        string thinkText = "";
 
         void Start()
         {
@@ -26,6 +27,8 @@ namespace Assets.Script.Game.Role
             width = GameCommonValue.muRateWidth * GameCommonValue.gameBaseLength;
             height = GameCommonValue.muRateHeight * GameCommonValue.gameBaseLength;
             jumpHeight = GameCommonValue.muJumpRateHeight * GameCommonValue.gameBaseLength;
+            fallDownHeight = GameCommonValue.muFallDownRateHeight * GameCommonValue.gameBaseLength;
+            weight = GameCommonValue.muRateWeight;
             ResetState();
             talkText = GameObject.Find("MuTalkText").GetComponent<Text>();
             talkText.text = "";
@@ -46,9 +49,9 @@ namespace Assets.Script.Game.Role
             {
                 if(isThinking)
                 {
-                    return;
+                    Talk(thinkText);
                 }
-                if (Time.time - lastStopTalkTime >= GameCommonValue.muPrepareTalkNeedTime)
+                else if (Time.time - lastStopTalkTime >= GameCommonValue.muPrepareTalkNeedTime)
                 {
                     Talk(levelScript.GetRandomTalkContent());
                 }
@@ -75,9 +78,18 @@ namespace Assets.Script.Game.Role
         /// <summary>
         /// 进行思考
         /// </summary>
-        public void Think()
+        public void Think(string thinkText)
         {
+            isThinking = true;
+            this.thinkText = thinkText;
+        }
 
+        /// <summary>
+        /// 停止思考
+        /// </summary>
+        public void StopThink()
+        {
+            isThinking = false;
         }
 
         /// <summary>
@@ -99,6 +111,33 @@ namespace Assets.Script.Game.Role
             talkText.text = "";
             lastStopTalkTime = Time.time;
             isTalking = false;
+        }
+
+        protected override void OnTriggerStay2D(Collider2D other)
+        {
+            base.OnTriggerStay2D(other);
+
+            if (other.gameObject.tag == "Helper")
+            {
+                HelperScript helperScript = other.gameObject.GetComponent<HelperScript>();
+                if (helperScript.needThink&& levelScript.GetCurrentRole() == this)
+                {
+                    Think(helperScript.thinkText);
+                }
+            }
+        }
+
+        protected override void OnTriggerExit2D(Collider2D other)
+        {
+            base.OnTriggerExit2D(other);
+            if (other.gameObject.tag == "Helper")
+            {
+                HelperScript helperScript = other.gameObject.GetComponent<HelperScript>();
+                if (helperScript.needThink && levelScript.GetCurrentRole() == this)
+                {
+                    StopThink();
+                }
+            }
         }
     }
 }
