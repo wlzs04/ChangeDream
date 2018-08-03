@@ -21,7 +21,9 @@ namespace Assets.Script.Levels
 
         int currentRoleIndex = 0;
         protected List<RoleBase> roleList = new List<RoleBase>();
-        MuRole muRole = null;
+        protected MuRole muRole = null;
+        protected MingRole mingRole = null;
+        protected QiRole qiRole = null;
 
         List<SavePoint> savePointList = new List<SavePoint>();
 
@@ -45,8 +47,6 @@ namespace Assets.Script.Levels
             help = GameObject.Find("HelpText").GetComponent<Text>();
             life = GameObject.Find("LifeText").GetComponent<Text>();
             InitLevel();
-
-
         }
 
         // Update is called once per frame
@@ -112,6 +112,10 @@ namespace Assets.Script.Levels
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 GameManager.GetSingleInstance().EnterMainScene();
+            }
+            if (Input.GetKeyDown(KeyCode.Backspace))
+            {
+                ReviveAtSavePoint();
             }
         }
 
@@ -214,8 +218,8 @@ namespace Assets.Script.Levels
         void InitRole()
         {
             muRole = GameObject.Find("MuRoleImage").GetComponent<MuRole>();
-            MingRole mingRole = GameObject.Find("MingRoleImage").GetComponent<MingRole>();
-            QiRole qiRole = GameObject.Find("QiRoleImage").GetComponent<QiRole>();
+            mingRole = GameObject.Find("MingRoleImage").GetComponent<MingRole>();
+            qiRole = GameObject.Find("QiRoleImage").GetComponent<QiRole>();
 
             RoleBase.SetLevelScript(this);
 
@@ -301,12 +305,26 @@ namespace Assets.Script.Levels
         /// <summary>
         /// 角色死亡
         /// </summary>
-        public void RoleDeath(RoleBase role,string deathReason = "未知原因")
+        public void RoleDeath(RoleBase role, RoleDeathReason deathReason,string deathReasonText="")
         {
             GameManager.GetSingleInstance().RoleDeath();
             ReviveAtSavePoint();
             life.text = "剩余生命：" + GameManager.GetSingleInstance().GetUserdata().residueLife;
-            muRole.Talk("上次死亡原因："+ deathReason);
+
+            switch (deathReason)
+            {
+                case RoleDeathReason.Unknown:
+                    muRole.Talk("上次死亡原因：" + deathReasonText + "不明不白。");
+                    break;
+                case RoleDeathReason.FallDown:
+                    muRole.Talk("上次死亡原因：" + deathReasonText + "跳得越高，摔得越狠。");
+                    break;
+                case RoleDeathReason.OutScene:
+                    muRole.Talk("上次死亡原因：" + deathReasonText + "这是开发者的问题。");
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

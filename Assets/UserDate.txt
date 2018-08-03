@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-16"?>
+<?xml version="1.0" encoding="utf-16"?>
 <Userdata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <audioValue>0.5</audioValue>
   <haveGameSave>true</haveGameSave>
   <haveClearGame>false</haveClearGame>
-  <residueLife>1022</residueLife>
-  <alreadyClearLevelNumber>1</alreadyClearLevelNumber>
-  <alreadyClearMiddleLevelNumber>0</alreadyClearMiddleLevelNumber>
+  <residueLife>1019</residueLife>
+  <alreadyClearLevelNumber>2</alreadyClearLevelNumber>
+  <alreadyClearMiddleLevelNumber>1</alreadyClearMiddleLevelNumber>
 </Userdata>

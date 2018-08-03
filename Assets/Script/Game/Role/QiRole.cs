@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Script.Game.Role
 {
-    class QiRole : RoleBase
+    public class QiRole : RoleBase
     {
         void Start()
         {

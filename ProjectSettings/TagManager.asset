@@ -17,6 +17,9 @@ TagManager:
   - LeftBlockCanJump
   - RightBlockCanJump
   - Death
+  - Door
+  - SavePointArea
+  - TransferPoint
   layers:
   - Default
   - TransparentFX

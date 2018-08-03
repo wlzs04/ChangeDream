@@ -19,6 +19,11 @@ namespace Assets.Script.Game
         public static readonly int controllableRoleNumber = 3;
 
         /// <summary>
+        /// 摄像机在改变跟随的角色时进行移动所需要的时间
+        /// </summary>
+        public static readonly float cameraChangeRoleTime = 0.3f;
+
+        /// <summary>
         /// 游戏基础长度
         /// </summary>
         public static readonly float gameBaseLength = 100;

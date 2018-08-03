@@ -19,7 +19,7 @@ namespace Assets.Script
         Userdata userdata = null;
         
         List<string> levelNameList = new List<string>();
-        
+
         private GameManager()
         {
             LoadUserdata();
@@ -35,6 +35,7 @@ namespace Assets.Script
 
             levelNameList.Add("TutorialLevelScene");
             levelNameList.Add("WeatherLevelScene");
+            levelNameList.Add("EightDoorLevelScene");
         }
 
         public static GameManager GetSingleInstance()

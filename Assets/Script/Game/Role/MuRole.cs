@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Assets.Script.Game.Role
 {
-    class MuRole : RoleBase
+    public class MuRole : RoleBase
     {
         Text talkText = null;
 

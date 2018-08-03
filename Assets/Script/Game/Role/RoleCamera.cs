@@ -12,6 +12,10 @@ namespace Assets.Script.Game.Role
         RectTransform backTransform = null;
         RoleBase role = null;
 
+        float lastRolePositionX;
+        bool isChangingView = false;
+        float changeStartTime = 0;
+
         bool lockViewport = false;
         float backWidth = 0;
 
@@ -31,7 +35,14 @@ namespace Assets.Script.Game.Role
         /// <param name="role"></param>
         public void SetFollowRole(RoleBase role)
         {
+            if(this.role!=null)
+            {
+                lastRolePositionX = this.role.GetPositionX();
+                changeStartTime = Time.time;
+                isChangingView = true;
+            }
             this.role = role;
+
             ResetViewport();
         }
 
@@ -40,10 +51,23 @@ namespace Assets.Script.Game.Role
         /// </summary>
         public void ResetViewport()
         {
+            float backX = 0;
+
             if (!lockViewport)
             {
-                float backX = 0;
-                backX = role.GetPositionX() - viewportWidth / 2;
+                if (isChangingView)
+                {
+                    backX = lastRolePositionX - role.GetPositionX();
+                    backX = lastRolePositionX - backX * (Time.time - changeStartTime) / GameCommonValue.cameraChangeRoleTime - viewportWidth / 2;
+                    if (Time.time - changeStartTime >= GameCommonValue.cameraChangeRoleTime)
+                    {
+                        isChangingView = false;
+                    }
+                }
+                else
+                {
+                    backX = role.GetPositionX() - viewportWidth / 2;
+                }
                 if (backX <= 0)
                 {
                     backTransform.position = new Vector3(0, backTransform.position.y);

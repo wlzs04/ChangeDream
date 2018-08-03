@@ -16,6 +16,7 @@ namespace Assets.Script.Game.Weather
         float intensity = 1;//风的强度
         float speed = 1;//风的速度
 
+
         RoleTurnDirection windDirection;//暂时用角色转向表示风向
         System.Random random = new System.Random();
 

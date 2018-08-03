@@ -1,4 +1,5 @@
-﻿using Assets.Script.Levels;
+﻿using Assets.Script.Game.Door;
+using Assets.Script.Levels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,6 +30,13 @@ namespace Assets.Script.Game.Role
         Climb,//攀爬
         Special,//特殊
         Controlled,//被控制
+    }
+
+    public enum RoleDeathReason
+    {
+        Unknown,//未知
+        FallDown,//摔
+        OutScene,//掉出场景外
     }
 
     public abstract class RoleBase : MonoBehaviour
@@ -73,8 +81,8 @@ namespace Assets.Script.Game.Role
         protected float climbObjectHeight = 0;//第1阶段在y方向所需移动的距离
         protected float climbObjectWidth = 0;//第2阶段在x方向所需移动的距离
         protected float climbFromX = 0;//第2阶段移动的起始X位置
-
-        protected bool beControlled = false;//受控制无法跳跃
+        
+        protected bool beControlledCanntJump = false;//受控制无法跳跃
 
         void Start()
         {
@@ -195,7 +203,7 @@ namespace Assets.Script.Game.Role
             }
             else if (jumpTopY - gameObject.transform.localPosition.y >= fallDownHeight)
             {
-                levelScript.RoleDeath(this, "跳得越高，摔得越狠！");
+                levelScript.RoleDeath(this, RoleDeathReason.FallDown);
             }
         }
 
@@ -228,7 +236,7 @@ namespace Assets.Script.Game.Role
                 case "LeftBlock":
                 case "RightBlock":
                     StopJump();
-                    beControlled =true;
+                    beControlledCanntJump = true;
                     break;
                 case "Ground":
                     StopJump();
@@ -251,7 +259,10 @@ namespace Assets.Script.Game.Role
                     levelScript.ShowHelperText(other.gameObject.GetComponent<HelperScript>().helperText);
                     break;
                 case "Death":
-                    levelScript.RoleDeath(this, other.gameObject.GetComponent<DeathScript>().deathReason);
+                    levelScript.RoleDeath(this, RoleDeathReason.OutScene,other.gameObject.GetComponent<DeathScript>().deathReason);
+                    break;
+                case "Door":
+                    other.gameObject.GetComponent<DoorBase>().EnterDoor(this);
                     break;
                 default:
                     break;
@@ -278,6 +289,9 @@ namespace Assets.Script.Game.Role
                     break;
                 case "Block":
                     break;
+                case "Door":
+                    other.gameObject.GetComponent<DoorBase>().StayDoor(this);
+                    break;
                 default:
                     break;
             }
@@ -293,13 +307,16 @@ namespace Assets.Script.Game.Role
             {
                 case "LeftBlock":
                 case "LeftBlockCanJump":
-                    beControlled = false;
+                    beControlledCanntJump = false;
                     Jump(RoleTurnDirection.Right);
                     break;
                 case "RightBlock":
                 case "RightBlockCanJump":
-                    beControlled = false;
+                    beControlledCanntJump = false;
                     Jump(RoleTurnDirection.Left);
+                    break;
+                case "Door":
+                    other.gameObject.GetComponent<DoorBase>().ExitDoor(this);
                     break;
                 default:
                     break;
@@ -346,7 +363,7 @@ namespace Assets.Script.Game.Role
         /// <param name="roleTurnDirection"></param>
         public void Jump(RoleTurnDirection roleTurnDirection= RoleTurnDirection.Normal)
         {
-            if(beControlled)
+            if(beControlledCanntJump)
             {
                 return;
             }
@@ -441,6 +458,27 @@ namespace Assets.Script.Game.Role
         public void SetInvincible(bool isInvincible)
         {
             this.isInvincible = isInvincible;
+        }
+
+        /// <summary>
+        /// 设置角色可以跳跃
+        /// </summary>
+        public void CanJump()
+        {
+            beControlledCanntJump = false;
+        }
+
+        /// <summary>
+        /// 设置角色不能跳跃
+        /// </summary>
+        public void CanntJump()
+        {
+            beControlledCanntJump = true;
+        }
+
+        public RoleTurnDirection GetRoleTurnDirection()
+        {
+            return roleTurnDirection;
         }
     }
 }

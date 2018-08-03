@@ -10,7 +10,7 @@ namespace Assets.Script.Levels
 {
     class WeatherLevelScript : LevelScriptBase
     {
-        bool startWind = false;
+        bool startWind = true;
         Wind wind = new Wind();
 
         protected override void Start()
@@ -27,22 +27,56 @@ namespace Assets.Script.Levels
         protected override void Update()
         {
             base.Update();
-            wind.Update();
 
-            if(wind.IsWinding())
+            if(startWind)
             {
-                foreach (var item in roleList)
+                wind.Update();
+
+                if (wind.IsWinding())
                 {
-                    item.MoveByOther(null,Time.deltaTime* (1/item.GetWeight()) * wind.GetSpeed(), wind.GetWindDirection());
+                    foreach (var item in roleList)
+                    {
+                        if(!RoleStandBehindMing(item))
+                        {
+                            item.MoveByOther(null, Time.deltaTime * (1 / item.GetWeight()) * wind.GetSpeed(), wind.GetWindDirection());
+                        }
+                    }
+                }
+                else
+                {
+                    if (Time.time - wind.GetStopTime() > 3)
+                    {
+                        wind.StartByRandom();
+                    }
                 }
             }
-            else
+        }
+
+        /// <summary>
+        /// 判断角色是否站在鸣的身后
+        /// </summary>
+        /// <returns></returns>
+        bool RoleStandBehindMing(RoleBase role)
+        {
+            if(role==mingRole)
             {
-                if(Time.time - wind.GetStopTime()>3)
-                {
-                    wind.StartByRandom();
-                }
+                return false;
             }
+            RoleTurnDirection windDirection = wind.GetWindDirection();
+            float flag = mingRole.GetPositionX() - role.GetPositionX();
+            switch (windDirection)
+            {
+                case RoleTurnDirection.Normal:
+                    Debug.LogError("风向有误！Normal");
+                    break;
+                case RoleTurnDirection.Left:
+                    return flag > 0;
+                case RoleTurnDirection.Right:
+                    return flag < 0;
+                default:
+                    break;
+            }
+            return false;
         }
     }
 }

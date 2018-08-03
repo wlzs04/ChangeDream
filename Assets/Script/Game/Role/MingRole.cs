@@ -6,8 +6,11 @@ using UnityEngine;
 
 namespace Assets.Script.Game.Role
 {
-    class MingRole : RoleBase
+    public class MingRole : RoleBase
     {
+        SavePoint carrySavePoint = null;
+        bool isSavePointArea = false;
+
         void Start()
         {
             roleName = "鸣";
@@ -23,6 +26,13 @@ namespace Assets.Script.Game.Role
         protected override void Update()
         {
             base.Update();
+            if(Input.GetKeyDown(KeyCode.J))
+            {
+                if(isSavePointArea&& carrySavePoint!=null)
+                {
+                    carrySavePoint.Drop();
+                }
+            }
         }
 
         public override string GetInfo()
@@ -44,6 +54,19 @@ namespace Assets.Script.Game.Role
 
         protected override void OnTriggerEnter2D(Collider2D other)
         {
+            if(other.gameObject.tag == "SavePoint")
+            {
+                SavePoint sp = other.gameObject.GetComponent<SavePoint>();
+                if (sp.canCarry)
+                {
+                    if(Input.GetKey(KeyCode.J))
+                    {
+                        sp.CarryBy(this);
+                        carrySavePoint = sp;
+                    }
+                }
+            }
+
             base.OnTriggerEnter2D(other);
             
             if(other.gameObject.tag=="Role")
@@ -57,6 +80,20 @@ namespace Assets.Script.Game.Role
                         role.JumpByOther(gameObject,jumpHeight,roleTurnDirection);
                     }
                 }
+            }
+
+            if(other.gameObject.tag == "SavePointArea")
+            {
+                isSavePointArea = true;
+            }
+        }
+
+        protected override void OnTriggerExit2D(Collider2D other)
+        {
+            base.OnTriggerExit2D(other);
+            if (other.gameObject.tag == "SavePointArea")
+            {
+                isSavePointArea = false;
             }
         }
     }
