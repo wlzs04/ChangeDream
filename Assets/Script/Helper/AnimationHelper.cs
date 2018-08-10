@@ -27,7 +27,7 @@ namespace Assets.Script.Helper
     /// </summary>
     class AnimationHelper
     {
-        Dictionary<string, AnimationObject> animations = new Dictionary<string, AnimationObject>();
+        Dictionary<GameObject, AnimationObject> animations = new Dictionary<GameObject, AnimationObject>();
         float currentTime = 0;
         float thisTickTime = 0;
         static AnimationHelper animationHelper = new AnimationHelper();
@@ -50,7 +50,7 @@ namespace Assets.Script.Helper
         /// <param name="fromPosition"></param>
         /// <param name="toPosition"></param>
         /// <param name="needTime"></param>
-        public void AddAnimation(string animationName,GameObject gameObject,Vector3 fromPosition,Vector3 toPosition,float needTime)
+        public void AddAnimation(string animationName,GameObject gameObject,Vector3 fromPosition,Vector3 toPosition,float needTime, AnimationCallBack callBack=null)
         {
             AnimationObject animationObject = new AnimationObject();
             animationObject.name = animationName;
@@ -59,6 +59,7 @@ namespace Assets.Script.Helper
             animationObject.toPosition = toPosition;
             animationObject.needTime = needTime;
             animationObject.startTime = Time.time;
+            animationObject.animationCallBack = callBack;
             AddAnimation(animationObject);
         }
 
@@ -68,11 +69,11 @@ namespace Assets.Script.Helper
         /// <param name="animationObject"></param>
         public void AddAnimation(AnimationObject animationObject)
         {
-            if(animations.ContainsKey(animationObject.name))
+            if(animations.ContainsKey(animationObject.gameObject))
             {
                 Debug.LogError("动画已存在："+ animationObject.name);
             }
-            animations[animationObject.name] = animationObject;
+            animations[animationObject.gameObject] = animationObject;
         }
 
         public void Update()
@@ -91,6 +92,10 @@ namespace Assets.Script.Helper
                 if (currentTime >= animation.startTime + animation.needTime)
                 {
                     animation.gameObject.transform.localPosition = animation.toPosition;
+                    if(animation.animationCallBack!=null)
+                    {
+                        animation.animationCallBack.Invoke(null);
+                    }
                     animations.Remove(item.Key);
                     break;
                 }

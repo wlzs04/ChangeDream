@@ -38,6 +38,8 @@ namespace Assets.Script.Levels
         protected List<string> muTalkContentList = new List<string>();
         protected System.Random random = new System.Random();
 
+        protected bool cameraMoveControlByLevel = false;
+
         // Use this for initialization
         protected virtual void Start()
         {
@@ -119,6 +121,11 @@ namespace Assets.Script.Levels
             }
         }
 
+        public RoleCamera GetRoleCamera()
+        {
+            return roleCamera;
+        }
+
         /// <summary>
         /// 随机返回场景说话集合的一句
         /// </summary>
@@ -162,8 +169,16 @@ namespace Assets.Script.Levels
         void SetRole()
         {
             currentControlRole = roleList[currentRoleIndex];
-            roleCamera.SetFollowRole(currentControlRole);
+            if(!cameraMoveControlByLevel)
+            {
+                roleCamera.SetFollowRole(currentControlRole);
+            }
             back.color = currentControlRole.GetThemeColor();
+        }
+
+        protected virtual void MoveCameraFromRoleToRole(RoleBase roleFrom,RoleBase roleTo)
+        {
+            
         }
 
         /// <summary>
@@ -233,7 +248,12 @@ namespace Assets.Script.Levels
         /// </summary>
         void ChangeRole()
         {
-            currentRoleIndex = currentRoleIndex >= 2 ? 0 : currentRoleIndex + 1;
+            int newRoleIndex = currentRoleIndex >= 2 ? 0 : currentRoleIndex + 1;
+            if(cameraMoveControlByLevel)
+            {
+                MoveCameraFromRoleToRole(roleList[currentRoleIndex], roleList[newRoleIndex]);
+            }
+            currentRoleIndex = newRoleIndex;
             SetRole();
         }
 

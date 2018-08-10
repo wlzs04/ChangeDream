@@ -9,6 +9,8 @@ namespace Assets.Script.Game.Door
 {
     abstract class DoorBase : MonoBehaviour
     {
+        protected bool isOpening = false;
+
         protected string doorName = "door";
 
         protected virtual void Start()
@@ -43,5 +45,10 @@ namespace Assets.Script.Game.Door
         /// 打开门
         /// </summary>
         public abstract void Open();
+
+        public bool IsOpening()
+        {
+            return isOpening;
+        }
     }
 }

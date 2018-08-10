@@ -14,19 +14,12 @@ namespace Assets.Script.Game.Door
     class DoorOneKaiMen : DoorBase
     {
         bool idOpening = false;
-        float fromPositionY = 0;//起始点
         float raisingHeight = 400;//升起高度
         float raisingNeedTime = 3;//升起所需时间
-        float raisingStartTime = 0;//升起所需时间
 
         protected override void Start()
         {
             doorName = "开门";
-            fromPositionY = gameObject.transform.localPosition.y;
-        }
-
-        protected override void Update()
-        {
         }
 
         public override void EnterDoor(RoleBase role)
@@ -35,7 +28,7 @@ namespace Assets.Script.Game.Door
             {
                 Open();
             }
-            role.StopJump();
+            role.StopJump(null);
             role.CanntJump();
         }
 

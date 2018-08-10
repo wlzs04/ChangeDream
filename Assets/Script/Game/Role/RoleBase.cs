@@ -84,6 +84,9 @@ namespace Assets.Script.Game.Role
         
         protected bool beControlledCanntJump = false;//受控制无法跳跃
 
+        //用于向角色添加临时保存信息
+        protected Dictionary<string, object> contentMap = new Dictionary<string, object>();
+
         void Start()
         {
             ResetState();
@@ -189,9 +192,18 @@ namespace Assets.Script.Game.Role
         }
 
         /// <summary>
+        /// 获得关卡脚本
+        /// </summary>
+        /// <returns></returns>
+        public static LevelScriptBase GetLevelScript()
+        {
+            return levelScript;
+        }
+
+        /// <summary>
         /// 停止跳跃
         /// </summary>
-        public void StopJump()
+        public void StopJump(GameObject gameObject)
         {
             if(roleState==RoleState.Jump)
             {
@@ -201,9 +213,13 @@ namespace Assets.Script.Game.Role
             {
                 isInvincible = false;
             }
-            else if (jumpTopY - gameObject.transform.localPosition.y >= fallDownHeight)
+            else if (jumpTopY - this.gameObject.transform.localPosition.y >= fallDownHeight)
             {
                 levelScript.RoleDeath(this, RoleDeathReason.FallDown);
+            }
+            if(gameObject!=null)
+            {
+                transform.position = new Vector3(transform.position.x, gameObject.transform.position.y + gameObject.GetComponent<BoxCollider2D>().size.y+1, 0);
             }
         }
 
@@ -235,11 +251,11 @@ namespace Assets.Script.Game.Role
             {
                 case "LeftBlock":
                 case "RightBlock":
-                    StopJump();
+                    StopJump(null);
                     beControlledCanntJump = true;
                     break;
                 case "Ground":
-                    StopJump();
+                    StopJump(other.gameObject);
                     break;
                 case "Climb":
                     if(Input.GetKey(KeyCode.J))
@@ -278,6 +294,7 @@ namespace Assets.Script.Game.Role
             switch (other.gameObject.tag)
             {
                 case "Ground":
+                    //StopJump(other.gameObject);
                     break;
                 case "LeftBlock":
                 case "LeftBlockCanJump":
@@ -341,6 +358,11 @@ namespace Assets.Script.Game.Role
         public float GetPositionX()
         {
             return gameObject.transform.localPosition.x;
+        }
+
+        public Vector3 GetPosition()
+        {
+            return transform.localPosition;
         }
 
         public abstract Color GetThemeColor();
@@ -479,6 +501,55 @@ namespace Assets.Script.Game.Role
         public RoleTurnDirection GetRoleTurnDirection()
         {
             return roleTurnDirection;
+        }
+
+        /// <summary>
+        /// 添加角色保存信息
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        public void AddContent(string key,object value)
+        {
+            if(contentMap.ContainsKey(key))
+            {
+                Debug.LogError("AddContent:角色保存信息中已存在key：" + key + " value:" + contentMap[key] + ",将替换为：" + value);
+            }
+            contentMap[key] = value;
+        }
+
+        /// <summary>
+        /// 获得角色保存信息
+        /// </summary>
+        /// <param name="key"></param>
+        public object GetContent(string key)
+        {
+            if (contentMap.ContainsKey(key))
+            {
+                return contentMap[key];
+            }
+            Debug.LogError("GetContent:角色保存信息中不存在key：" + key);
+            return null;
+        }
+
+        public void RemoveContent(string key)
+        {
+            if(contentMap.ContainsKey(key))
+            {
+                contentMap.Remove(key);
+            }
+            else
+            {
+                Debug.LogError("RemoveContent:角色保存信息中不存在key：" + key);
+            }
+        }
+
+        /// <summary>
+        /// 设置是否可见
+        /// </summary>
+        /// <param name="visible"></param>
+        public void SetVisible(bool visible)
+        {
+            gameObject.SetActive(visible);
         }
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Assets.Script.Game.Role
 {
-    class RoleCamera
+    public class RoleCamera
     {
         GameObject back = null;
         RectTransform backTransform = null;
@@ -20,6 +20,7 @@ namespace Assets.Script.Game.Role
         float backWidth = 0;
 
         float viewportWidth = 1024;
+        float viewportHeight = 768;
 
         public RoleCamera(GameObject back)
         {
@@ -27,6 +28,7 @@ namespace Assets.Script.Game.Role
             backTransform = (RectTransform)back.transform;
             backWidth = ((RectTransform)back.transform).sizeDelta.x;
             viewportWidth = Camera.main.pixelWidth;
+            viewportHeight = Camera.main.pixelHeight;
         }
 
         /// <summary>
@@ -44,6 +46,15 @@ namespace Assets.Script.Game.Role
             this.role = role;
 
             ResetViewport();
+        }
+
+        /// <summary>
+        /// 由关卡调用，控制镜头
+        /// </summary>
+        public void SetPositionXByLevel(float x)
+        {
+            float backX = x - viewportWidth / 2;
+            backTransform.position = new Vector3(-backX, backTransform.position.y,0);
         }
 
         /// <summary>
@@ -80,6 +91,23 @@ namespace Assets.Script.Game.Role
                 }
                 backTransform.position = new Vector3(-backX, backTransform.position.y);
             }
+        }
+
+        /// <summary>
+        /// 检测物体X方向是否在视野中
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckGameObjectInView(GameObject gameObject)
+        {
+            Vector2 objectRect = ((RectTransform)gameObject.transform).sizeDelta;
+            Vector3 objectPosition = gameObject.transform.position;
+
+            if (objectPosition.x+ objectRect.x/2<=0|| objectPosition.x - objectRect.x / 2>=viewportWidth
+                ||objectPosition.y>=viewportHeight|| objectPosition.y+ objectRect.y <= 0)
+            {
+                return false;
+            }
+            return true;
         }
 
         /// <summary>

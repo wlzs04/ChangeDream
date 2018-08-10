@@ -39,7 +39,7 @@ namespace Assets.Script.Game.Role
         {
             roleState = RoleState.Normal;
             blood = GameCommonValue.qiBloodVolume;
-            ((RectTransform)this.gameObject.transform).sizeDelta = new Vector2(width, height);
+            ((RectTransform)gameObject.transform).sizeDelta = new Vector2(width, height);
         }
     }
 }
